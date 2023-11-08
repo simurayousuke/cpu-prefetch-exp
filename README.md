@@ -1,8 +1,8 @@
 # cpu-prefetch-exp
 
-This is a example to show what's the difference between using list and vector to save points for game objects.
+This is an example to show what's the difference between using list and vector to save points for game objects.
 
-From this expirement, we can see that when update the world matrix for a game object tree (depth:10, each parent has 100 children), list(linked list) always need more time than vector(array).
+From this experiment, we can see that when updating the world matrix for a game object tree (depth: 10, each parent has 100 children), list (linked list) always needs more time than vector (array).
 
 ## Results (Time)
 
