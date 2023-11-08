@@ -1,17 +1,13 @@
-﻿// PrefetchTest.cpp : このファイルには 'main' 関数が含まれています。プログラム実行の開始と終了がそこで行われます。
-//
-
-#include <iostream>
+﻿#include <iostream>
 #include <chrono>
 #include <vector>
 #include <list>
 using namespace std;
 
-//#define ENABLE_PREFETCH
-
 #define SUB_COUNT 100
 #define DEPTH 10
 
+template<template <typename, typename> class ContainerType>
 class GameObject
 {
 private:
@@ -26,10 +22,19 @@ private:
 		{0,0,0,1}
 	};
 
-	virtual void UpdateMatrixForChildren() = 0;
+	ContainerType<GameObject*, std::allocator<GameObject*>> children;
+
+	void UpdateMatrixForChildren()
+	{
+		for (auto child : children)
+			child->UpdateMatrix();
+	}
 
 public:
-	virtual void AddChild(GameObject* gameOjbect) = 0;
+	void AddChild(GameObject<ContainerType>* gameOjbect)
+	{
+		children.push_back(gameOjbect);
+	}
 
 
 	GameObject() {
@@ -93,42 +98,6 @@ public:
 	}
 };
 
-class GameObjectUsingArray : public GameObject
-{
-private:
-	vector<GameObjectUsingArray*> children;
-
-	void UpdateMatrixForChildren()
-	{
-		for (auto child : children)
-			child->UpdateMatrix();
-	}
-
-public:
-	void AddChild(GameObject* gameOjbect)
-	{
-		children.push_back(dynamic_cast<GameObjectUsingArray*>(gameOjbect));
-	}
-};
-
-class GameObjectUsingLinkedList :public GameObject
-{
-private:
-	list<GameObjectUsingLinkedList*> children;
-
-	void UpdateMatrixForChildren()
-	{
-		for (auto* child : children)
-			child->UpdateMatrix();
-	}
-
-public:
-	void AddChild(GameObject* gameOjbect)
-	{
-		children.push_back(dynamic_cast<GameObjectUsingLinkedList*>(gameOjbect));
-	}
-};
-
 template<class T>
 void InitData(size_t depth, size_t maxDepth, size_t size, T& node)
 {
@@ -145,8 +114,8 @@ void InitData(size_t depth, size_t maxDepth, size_t size, T& node)
 
 int main()
 {
-	GameObjectUsingArray arrayRoot;
-	GameObjectUsingLinkedList llistRoot;
+	GameObject<vector> arrayRoot;
+	GameObject<list> llistRoot;
 
 	InitData(0, DEPTH, SUB_COUNT, arrayRoot);
 	InitData(0, DEPTH, SUB_COUNT, llistRoot);
